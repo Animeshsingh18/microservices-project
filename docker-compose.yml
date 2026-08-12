@@ -1,0 +1,61 @@
+version: "3.8"
+
+# Brings up ALL shared infrastructure in one command: NATS JetStream +
+# both services' Postgres instances. The Spring Boot services themselves
+# are run separately (IntelliJ or `mvn spring-boot:run`) — see README.md.
+
+services:
+  nats:
+    image: nats:2.10-alpine
+    container_name: nats
+    restart: unless-stopped
+    # -js enables JetStream (persistence + durable consumers).
+    # Production: add -tls + cert flags and an accounts.conf for
+    # per-service auth instead of these dev flags.
+    command: ["-js", "-m", "8222", "-DV"]
+    ports:
+      - "4222:4222"   # client connections
+      - "8222:8222"   # HTTP monitoring: http://localhost:8222
+    volumes:
+      - nats_data:/data
+
+  user-db:
+    image: postgres:16-alpine
+    container_name: user-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: user_db
+      POSTGRES_USER: user_service
+      POSTGRES_PASSWORD: changeme
+    ports:
+      - "5432:5432"
+    volumes:
+      - user_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user_service -d user_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  notification-db:
+    image: postgres:16-alpine
+    container_name: notification-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: notification_db
+      POSTGRES_USER: notification_service
+      POSTGRES_PASSWORD: changeme
+    ports:
+      - "5433:5432"
+    volumes:
+      - notification_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U notification_service -d notification_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  nats_data:
+  user_db_data:
+  notification_db_data:

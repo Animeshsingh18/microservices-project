@@ -1,0 +1,68 @@
+server:
+  port: ${SERVER_PORT:8082}
+
+spring:
+  application:
+    name: notification-service
+
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5433/notification_db}
+    username: ${DB_USERNAME:notification_service}
+    password: ${DB_PASSWORD:changeme}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: ${JPA_DDL_AUTO:update}
+    show-sql: ${JPA_SHOW_SQL:false}
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          time_zone: UTC
+
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:CHANGE_ME_TO_A_LONG_RANDOM_BASE64_SECRET_MIN_256_BITS}   # MUST match User Service's secret
+
+  notifications:
+    channel: ${NOTIFICATION_CHANNEL:LOG}   # LOG (simulate, default/dev) or EMAIL (real SMTP send)
+    from-address: ${NOTIFICATION_FROM_ADDRESS:no-reply@example.com}
+
+  nats:
+    url: ${NATS_URL:nats://localhost:4222}
+    creds-file: ${NATS_CREDS_FILE:}
+    username: ${NATS_USERNAME:}
+    password: ${NATS_PASSWORD:}
+    tls-enabled: ${NATS_TLS_ENABLED:false}
+    truststore-path: ${NATS_TRUSTSTORE_PATH:}
+    truststore-password: ${NATS_TRUSTSTORE_PASSWORD:}
+    stream-name: ${NATS_STREAM_NAME:USER_EVENTS}
+    subject-prefix: ${NATS_SUBJECT_PREFIX:user.events}
+    durable-consumer-name: ${NATS_DURABLE_CONSUMER:notification-service-durable}
+    max-deliver: ${NATS_MAX_DELIVER:5}
+    ack-wait-seconds: ${NATS_ACK_WAIT_SECONDS:30}
+    connection-timeout-ms: ${NATS_CONNECT_TIMEOUT_MS:5000}
+    dlq-subject: ${NATS_DLQ_SUBJECT:user.events.dlq}
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
+
+logging:
+  level:
+    com.example.notificationservice: ${LOG_LEVEL:INFO}

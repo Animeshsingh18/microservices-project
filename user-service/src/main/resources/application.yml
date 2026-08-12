@@ -1,0 +1,55 @@
+server:
+  port: ${SERVER_PORT:8081}
+
+spring:
+  application:
+    name: user-service
+
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/user_db}
+    username: ${DB_USERNAME:user_service}
+    password: ${DB_PASSWORD:password}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: ${JPA_DDL_AUTO:update}
+    show-sql: ${JPA_SHOW_SQL:false}
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          time_zone: UTC
+
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:mysecretkey}
+    expiration-ms: ${JWT_EXPIRATION_MS:3600000}   # 1 hour
+
+  nats:
+    url: ${NATS_URL:nats://localhost:4222}
+
+    creds-file: ${NATS_CREDS_FILE:}
+    username: ${NATS_USERNAME:username}
+    password: ${NATS_PASSWORD:password}
+    tls-enabled: ${NATS_TLS_ENABLED:false}
+    truststore-path: ${NATS_TRUSTSTORE_PATH:}
+    truststore-password: ${NATS_TRUSTSTORE_PASSWORD:password}
+    stream-name: ${NATS_STREAM_NAME:USER_EVENTS}
+    subject-prefix: ${NATS_SUBJECT_PREFIX:user.events}
+    connection-timeout-ms: ${NATS_CONNECT_TIMEOUT_MS:5000}
+
+  outbox:
+    relay-fixed-delay-ms: ${OUTBOX_RELAY_DELAY_MS:2000}
+    max-publish-attempts: ${OUTBOX_MAX_ATTEMPTS:5}
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
+
+logging:
+  level:
+    com.example.userservice: ${LOG_LEVEL:INFO}
